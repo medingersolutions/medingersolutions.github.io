@@ -1,137 +1,195 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Professional Portfolio</title>
+    <title>Professional Claims Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
             line-height: 1.6;
             color: #333;
+            background-color: #f4f4f4;
         }
         header {
-            background: #2c3e50;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
             color: white;
             text-align: center;
-            padding: 2rem;
+            padding: 3rem 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        header p {
+            font-size: 1.2rem;
+            font-weight: 300;
         }
         nav {
-            background: #ecf0f1;
-            padding: 1rem;
-            text-align: center;
+            background: #fff;
+            position: sticky;
+            top: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 100;
         }
-        nav a {
-            margin: 0 1rem;
+        nav ul {
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+            list-style: none;
+        }
+        nav ul li {
+            margin: 0 1.5rem;
+        }
+        nav ul li a {
             text-decoration: none;
             color: #2c3e50;
-            font-weight: bold;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+        nav ul li a:hover {
+            color: #3498db;
         }
         section {
+            max-width: 900px;
+            margin: 2rem auto;
             padding: 2rem;
-            max-width: 800px;
-            margin: auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         h2 {
             color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
         }
-        .pdf-list a {
-            display: block;
-            margin: 0.5rem 0;
-            color: #2980b9;
+        .pdf-button a {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        .pdf-button a:hover {
+            background: #2980b9;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        ul li {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        ul li::before {
+            content: '✔';
+            color: #3498db;
+            position: absolute;
+            left: 0;
+        }
+        #contact form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 500px;
+        }
+        #contact input,
+        #contact textarea {
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        #contact button {
+            padding: 0.8rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background 0.3s;
+        }
+        #contact button:hover {
+            background: #2980b9;
         }
         footer {
             background: #2c3e50;
             color: white;
             text-align: center;
             padding: 1rem;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+            margin-top: 2rem;
+        }
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            section {
+                margin: 1rem;
+                padding: 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Your Name</h1>
-        <p>Professional Estimator</p>
+        <h1>Medinger Solutions™</h1>
+        <p>Professional Inspector/Estimator/Adjuster</p>
     </header>
     <nav>
-        <a href="#about">About</a>
-        <a href="#samples">Work Samples</a>
-        <a href="#credentials">Credentials</a>
-        <a href="#contact">Contact</a>
+        <ul>
+            <li><a href="#about">About Me</a></li>
+            <li><a href="#samples">Work Samples</a></li>
+            <li><a href="#credentials">Credentials</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
     </nav>
     <section id="about">
-        <h2>About Me</h2>
-        <p>Highlight your strengths here. For example: I specialize in creating accurate and detailed estimates for construction projects, with a focus on cost efficiency and client satisfaction. My 10+ years of experience ensure reliable and timely deliverables.</p>
+        <h2>About Trevor Medinger</h2>
+        <p>I am a seasoned claims professional with a robust skill set and unmatched attention to detail. I excel in managing a high volume of claims, tailoring solutions to each unique situation to deliver high-quality, fair, and optimal outcomes for all parties involved. In the relativly short tenure in the industry, Ive had the opportunity to be deployed to several states including Florida and California. I have experience in handling just about every type of loss, from wind, hail, lightning, and hurricane, to fire, smoke, and flood. I am always ready to be deployed to serve communities in their time of need. </p>
     </section>
     <section id="samples">
         <h2>Work Samples</h2>
-        <p>Below are some sample estimates I've prepared:</p>
-        <div class="pdf-list">
-            <a href="path/to/sample-estimate1.pdf" target="_blank">Sample Estimate 1</a>
-            <a href="path/to/sample-estimate2.pdf" target="_blank">Sample Estimate 2</a>
-            <a href="path/to/sample-estimate3.pdf" target="_blank">Sample Estimate 3</a>
+        <p>View my sample estimates in the Dropbox folder below:</p>
+        <div class="pdf-button">
+            <a href="https://www.dropbox.com/scl/fo/9intju1w8n7wo95eg2a95/AJRf36VGVOkoOV0ss5-D1Nw?rlkey=by0g65iktk0ykpji20xlhvc16&st=bjtspco6&dl=0" target="_blank">View Sample Estimates</a>
         </div>
     </section>
     <section id="credentials">
-        <h2>Licenses & Certifications</h2>
+        <h2>Licenses and Certifications</h2>
         <ul>
-            <li>Certified Professional Estimator (CPE) – American Society of Professional Estimators</li>
-            <li>Licensed Contractor – [Your State]</li>
-            <li>Project Management Professional (PMP) – PMI</li>
+            <li>Licensed Independent Adjuster NPN: 20757980</li>
+            <li>Xactimate Level 1, 2, and 3 Certifications</li>
         </ul>
     </section>
     <section id="contact">
         <h2>Contact Me</h2>
-        <p>Email: yourname@example.com</p>
-        <p>Phone: (123) 456-7890</p>
-        <p>LinkedIn: <a href="https://linkedin.com/in/yourprofile" target="_blank">yourprofile</a></p>
+        <p>Email: medinger.solutions@gmail.com</p>
+        <p>Phone: (210)-369-8509</p>
+        <p>LinkedIn: <a href="https://www.linkedin.com/in/trevor-medinger-48607a212/" target="_blank">Trevor Medinger</a></p>
     </section>
     <footer>
-        <p>&copy; 2025 Your Name. All rights reserved.</p>
+        <p>&copy; 2025 lossmaster.com. All rights reserved.</p>
     </footer>
 </body>
 </html>
